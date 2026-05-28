@@ -26,9 +26,7 @@ void Display::print(const String& text, int x, int y,
 void Display::number(float value, int x, int y,
                      uint16_t color, uint8_t size,
                      uint8_t decimals) {
-    char buf[16];
-    dtostrf(value, 1, decimals, buf);
-    print(String(buf), x, y, color, size);
+    print(String(value, decimals), x, y, color, size);
 }
 
 void Display::rect(int x, int y, int width, int height, uint16_t color) {
