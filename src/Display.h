@@ -1,0 +1,97 @@
+#pragma once
+#include <Arduino.h>
+#include <TFT_eSPI.h>
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  Display – simple class for drawing on the Waveshare 1.47" LCD
+// ═══════════════════════════════════════════════════════════════════════════
+//
+//  Colour constants ready to use:
+//
+//    BLACK   WHITE   RED     GREEN   BLUE
+//    YELLOW  CYAN    MAGENTA GRAY    ORANGE
+//
+//  All methods use pixel coordinates.
+//  The display is 320 pixels wide and 172 pixels tall (landscape).
+//
+//        (0,0) ──────────────────────── (319,0)
+//          │                                │
+//          │                                │
+//        (0,171) ────────────────── (319,171)
+//
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── Colour constants ───────────────────────────────────────────────────────
+static const uint16_t BLACK   = TFT_BLACK;
+static const uint16_t WHITE   = TFT_WHITE;
+static const uint16_t RED     = TFT_RED;
+static const uint16_t GREEN   = TFT_GREEN;
+static const uint16_t BLUE    = TFT_BLUE;
+static const uint16_t YELLOW  = TFT_YELLOW;
+static const uint16_t CYAN    = TFT_CYAN;
+static const uint16_t MAGENTA = TFT_MAGENTA;
+static const uint16_t GRAY    = 0x7BEF;
+static const uint16_t ORANGE  = TFT_ORANGE;
+
+// ── Display class ──────────────────────────────────────────────────────────
+class Display {
+public:
+    // Initialise the display – call once in setup()
+    void begin();
+
+    // Fill the whole screen with one colour
+    // Example: display.clear(BLACK);
+    void clear(uint16_t color = BLACK);
+
+    // Print a text string
+    // Example: display.print("Hello!", 10, 10, WHITE, 2);
+    //   x, y  = position (top-left corner of the text)
+    //   color = text colour
+    //   size  = 1 (small) to 4 (very large)
+    void print(const String& text, int x, int y,
+               uint16_t color = WHITE, uint8_t size = 2);
+
+    // Print a number (e.g. a sensor reading)
+    // Example: display.number(temperature, 10, 50, RED);
+    void number(float value, int x, int y,
+                uint16_t color = WHITE, uint8_t size = 2,
+                uint8_t decimals = 1);
+
+    // Draw a rectangle outline
+    // Example: display.rect(10, 10, 100, 50, BLUE);
+    void rect(int x, int y, int width, int height, uint16_t color = WHITE);
+
+    // Draw a filled rectangle
+    // Example: display.rectFilled(10, 10, 100, 50, GREEN);
+    void rectFilled(int x, int y, int width, int height, uint16_t color = WHITE);
+
+    // Draw a circle outline
+    // Example: display.circle(160, 86, 40, YELLOW);
+    //   cx, cy = centre point;  radius = radius in pixels
+    void circle(int cx, int cy, int radius, uint16_t color = WHITE);
+
+    // Draw a filled circle
+    void circleFilled(int cx, int cy, int radius, uint16_t color = WHITE);
+
+    // Draw a line between two points
+    // Example: display.line(0, 0, 319, 171, RED);
+    void line(int x1, int y1, int x2, int y2, uint16_t color = WHITE);
+
+    // Draw a progress bar for a sensor value (e.g. temperature, brightness)
+    // Example: display.bar(10, 80, 200, 20, value, 0, 100, CYAN);
+    //   x, y          = position
+    //   width, height = size of the bar
+    //   value         = current value
+    //   minValue      = lower end of the scale
+    //   maxValue      = upper end of the scale
+    //   color         = bar colour
+    void bar(int x, int y, int width, int height,
+             float value, float minValue, float maxValue,
+             uint16_t color = GREEN);
+
+    // Direct access to the underlying TFT object (advanced use)
+    TFT_eSPI& tft() { return _tft; }
+
+private:
+    TFT_eSPI _tft;
+};

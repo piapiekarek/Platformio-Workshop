@@ -1,88 +1,70 @@
-/**
- * Waveshare 1.47" LCD – Demo
- * ──────────────────────────
- * Display  : ST7789V2, 172 × 320 px
- * Bibliothek: TFT_eSPI (Bodmer)
- * GUI-Tool : Lopaka  → https://lopaka.app
- *
- * Pin-Belegung und Board-Auswahl → platformio.ini
- *
- * Lopaka-Workflow:
- *   1. GUI unter https://lopaka.app/ gestalten
- *   2. Als Ausgabeformat "TFT_eSPI" wählen
- *   3. Exportierten Code in dieses Projekt einbinden:
- *        - Dateien in src/ oder include/ kopieren
- *        - Unten mit   #include "lopaka_ui.h"   einbinden
- *        - lopaka_render() im loop() aufrufen
- */
-
 #include <Arduino.h>
-#include <TFT_eSPI.h>
+#include "Display.h"
 
-TFT_eSPI tft = TFT_eSPI();
+// ═══════════════════════════════════════════════════════════════════════════
+//  Waveshare 1.47" LCD – starter project
+// ═══════════════════════════════════════════════════════════════════════════
+//
+//  The display is 320 pixels wide and 172 pixels tall (landscape).
+//
+//        (0,0) ──────────────────────── (319,0)
+//          │                                │
+//          │                                │
+//        (0,171) ────────────────── (319,171)
+//
+//  Colours: BLACK  WHITE  RED  GREEN  BLUE
+//           YELLOW  CYAN  MAGENTA  GRAY  ORANGE
+//
+// ═══════════════════════════════════════════════════════════════════════════
 
-// ─── Lopaka-Export hier einbinden (nach GUI-Export) ──────────────────────────
-// #include "lopaka_ui.h"
+Display display;   // create the display object once – use it everywhere
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ── setup() runs once on power-on ─────────────────────────────────────────
 void setup() {
     Serial.begin(115200);
+    display.begin();          // power on and initialise the display
 
-    // Hintergrundbeleuchtung einschalten
-    pinMode(TFT_BL, OUTPUT);
-    digitalWrite(TFT_BL, TFT_BACKLIGHT_ON);
+    // ── Background ───────────────────────────────────────────────────────
+    display.clear(BLACK);
 
-    // Display initialisieren
-    tft.init();
-    tft.setRotation(0);        // 0 = Portrait  172 × 320 px
-                               // 1 = Landscape 320 × 172 px
-    tft.fillScreen(TFT_BLACK);
+    // ── Print text ───────────────────────────────────────────────────────
+    //   display.print("text", x, y, colour, size);
+    //   size: 1 = small (8 px)  2 = medium (16 px)  3 = large (24 px)
+    display.print("Hello Workshop!", 10, 10, CYAN, 2);
 
-    // ── Demo-Anzeige ─────────────────────────────────────────────────────────
+    // ── Draw shapes ──────────────────────────────────────────────────────
+    display.rect(10, 40, 80, 40, WHITE);             // outline rectangle
+    display.rectFilled(110, 40, 80, 40, BLUE);       // filled rectangle
+    display.circle(260, 60, 30, YELLOW);             // circle outline
+    display.circleFilled(260, 60, 20, ORANGE);       // filled circle
+    display.line(0, 100, 319, 100, GRAY);            // horizontal line
 
-    // Rahmen
-    tft.drawRect(2, 2, tft.width() - 4, tft.height() - 4, TFT_WHITE);
+    // ── Show a sensor value as a number ──────────────────────────────────
+    //   Replace the fixed value with a real sensor reading later
+    float temperature = 22.5;
+    display.print("Temp:", 10, 110, WHITE, 2);
+    display.number(temperature, 90, 110, RED, 2, 1);   // 1 decimal place
+    display.print("C", 145, 110, RED, 2);
 
-    // Titel (zentriert)
-    tft.setTextDatum(TC_DATUM);
-    tft.setTextColor(TFT_CYAN, TFT_BLACK);
-    tft.setTextSize(2);
-    tft.drawString("Waveshare", tft.width() / 2, 14);
-    tft.drawString("1.47\" LCD",  tft.width() / 2, 36);
-
-    // Status-Infos
-    tft.setTextDatum(TL_DATUM);
-    tft.setTextColor(TFT_WHITE, TFT_BLACK);
-    tft.setTextSize(1);
-    tft.setCursor(8, 72);
-    tft.printf("%dx%d ST7789V2\n", tft.width(), tft.height());
-    tft.setCursor(8, 84);  tft.println("TFT_eSPI  [bereit]");
-    tft.setCursor(8, 96);  tft.println("Lopaka    [bereit]");
-
-    // Farbbalken
-    const uint16_t farben[]  = {TFT_RED, TFT_GREEN, TFT_BLUE, TFT_YELLOW};
-    const int16_t  balkenB   = tft.width() / 4;
-    for (uint8_t i = 0; i < 4; i++) {
-        tft.fillRect(i * balkenB, 120, balkenB, 28, farben[i]);
-    }
-
-    // Farbverlauf-Balken (16-bit Spektrum)
-    for (int16_t x = 0; x < tft.width(); x++) {
-        uint16_t farbe = tft.color565(
-            map(x, 0, tft.width(), 0, 255),
-            0,
-            map(x, 0, tft.width(), 255, 0)
-        );
-        tft.drawFastVLine(x, 158, 20, farbe);
-    }
-
-    Serial.printf("Display bereit: %d x %d px\n", tft.width(), tft.height());
+    // ── Progress bar for a sensor value ──────────────────────────────────
+    //   bar(x, y, width, height, value, min, max, colour)
+    display.bar(10, 145, 200, 18, temperature, 0, 40, GREEN);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ── loop() runs forever ───────────────────────────────────────────────────
 void loop() {
-    // Lopaka-generierten GUI-Code hier aufrufen:
-    // lopaka_render();
+    // ── Your task: ───────────────────────────────────────────────────────
+    //
+    // 1. Read a sensor value, e.g.:
+    //      int brightness = analogRead(34);   // photoresistor on GPIO 34
+    //
+    // 2. Show the value on the display:
+    //      display.number(brightness, 10, 110, YELLOW, 2, 0);
+    //
+    // 3. Update the progress bar:
+    //      display.bar(10, 145, 200, 18, brightness, 0, 4095, CYAN);
+    //
+    // Tip: Only redraw the area that changed – otherwise the screen flickers.
 
-    delay(1000);
+    delay(500);   // short pause between readings
 }
