@@ -4,3 +4,5 @@
 .vscode/launch.json
 .vscode/ipch
 archiv/
+arduino_code/
+diag_gfx.cpp
