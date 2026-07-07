@@ -37,11 +37,12 @@ bool ledIsOn = false;          // Is the LED on or off?
 float temperature = 0.0;       // Current temperature
 bool tempSensorConnected = false; // Is the sensor connected?
 
-// For the button
-bool lastButtonState = HIGH;   // HIGH = not pressed, LOW = pressed
-unsigned long buttonPressTime = 0;
+const unsigned long TEMP_READ_INTERVAL_MS = 1500;
+const unsigned long TEMP_CONVERSION_MS = 750;
 
 unsigned long lastTempReadTime = 0;
+unsigned long tempRequestStartTime = 0;
+bool tempRequestInProgress = false;
 
 // Global sensor objects
 OneWire oneWire(TEMP_SENSOR_PIN);
@@ -73,6 +74,7 @@ void setupLed() {
 
 void setupTempSensor() {
     tempSensor.begin();
+    tempSensor.setWaitForConversion(false);
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -134,20 +136,23 @@ void updateDisplay() {
 
 void readTemperature() {
     unsigned long now = millis();
-    
-    // Only read every 1.5 seconds (not constantly!)
-    if (now - lastTempReadTime < 1500) {
+
+    // Start a new conversion every interval.
+    if (!tempRequestInProgress && (now - lastTempReadTime >= TEMP_READ_INTERVAL_MS)) {
+        tempSensor.requestTemperatures();
+        tempRequestStartTime = now;
+        tempRequestInProgress = true;
         return;
     }
-    
+
+    // Wait until conversion is done without blocking the loop.
+    if (!tempRequestInProgress || (now - tempRequestStartTime < TEMP_CONVERSION_MS)) {
+        return;
+    }
+
     lastTempReadTime = now;
-    
-    // Request new value
-    tempSensor.requestTemperatures();
-    
-    // DS18B20 needs time! At least 750ms for 12-bit resolution
-    delay(750);
-    
+    tempRequestInProgress = false;
+
     // Get value
     float t = tempSensor.getTempCByIndex(0);
     
@@ -164,36 +169,12 @@ void readTemperature() {
 
 void handleButton() {
     int currentButtonState = digitalRead(BUTTON_PIN);
+
+    // Simple behaviour for workshop:
+    // Button pressed (LOW) -> LED ON, button released (HIGH) -> LED OFF.
+    ledIsOn = (currentButtonState == LOW);
+    digitalWrite(LED_PIN, ledIsOn ? HIGH : LOW);
     
-    // When button is just pressed (from HIGH to LOW)
-    if (currentButtonState == LOW && lastButtonState == HIGH) {
-        buttonPressTime = millis();
-    }
-    
-    // When button is released (from LOW to HIGH)
-    if (currentButtonState == HIGH && lastButtonState == LOW) {
-        unsigned long pressDuration = millis() - buttonPressTime;
-        
-        Serial.print("Button click detected, duration: ");
-        Serial.println(pressDuration);
-        
-        // Short click (< 1 second)
-        if (pressDuration < 1000) {
-            // Toggle LED
-            ledIsOn = !ledIsOn;
-            digitalWrite(LED_PIN, ledIsOn ? HIGH : LOW);
-            
-            Serial.print("LED is now: ");
-            Serial.println(ledIsOn ? "ON" : "OFF");
-        }
-        // Long click (> 1 second)
-        else {
-            // Both LEDs blink? Or other action...
-            // For now: nothing
-        }
-    }
-    
-    lastButtonState = currentButtonState;
 }
 
 // ────────────────────────────────────────────────────────────────────────────
