@@ -61,8 +61,9 @@ void setupDisplay() {
     display.print("Starting...", 50, 80, WHITE, 2);
 }
 
+
 void setupButton() {
-    pinMode(BUTTON_PIN, INPUT_PULLUP);
+    pinMode(BUTTON_PIN, INPUT_PULLUP);// DO NOT CHANGE THIS!
     // INPUT_PULLUP = Button connected to GND, pulls pin to HIGH
 }
 
