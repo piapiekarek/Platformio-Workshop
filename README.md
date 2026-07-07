@@ -77,23 +77,23 @@ Implemented in `src/AppScreen.cpp` and controlled from `src/main.cpp`.
 
 Shows:
 
-- sensor status (`connected` / `unconnected`)
-- button states (`B1/B2/B3`)
-- normal LED state
-- RGB color name
-- temperature value and bar
+- sensor status (`CONNECTED` / `UNCONNECTED`)
+- button 1 state (`DOWN` / `UP`)
+- normal LED state (`ON` / `OFF`)
+- temperature value in large text
+
+The layout uses clean boxes with good spacing to avoid text overlapping.
 
 ### Menu
 
-Open menu from dashboard with short click.
+Open menu from dashboard with **short click on Button 1**.
 
-- short click: move selection
-- long click: execute selected action
+- **short click**: move selection
+- **long click**: execute selected action
 
 Menu actions:
 
 - Toggle LED
-- Next RGB color
 - Back to dashboard
 
 ## Project Structure

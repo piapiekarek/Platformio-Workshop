@@ -2,12 +2,13 @@
 
 #include <Arduino.h>
 
-// Central pin mapping for external components.
-// Only GP0-9 and GP25-29 are exposed on the RP2350 board.
-static const uint8_t PIN_BUTTON_1 = 0;
-// static const uint8_t PIN_BUTTON_2 = 1;
-// static const uint8_t PIN_BUTTON_3 = 2;
-static const uint8_t PIN_DS18B20 = 3;
-static const uint8_t PIN_LED_SIMPLE = 4;
-static const uint8_t PIN_RGB_LED = 5;
-static const uint8_t PIN_SERVO = 6;
+// =============================================================================
+// PIN MAPPING für RP2350
+// =============================================================================
+// Nur GPIO 0-9 und GP25-29 sind auf dem RP2350 verfügbar.
+// Hier sind die Pins die wir verwenden:
+
+static const uint8_t BUTTON_PIN = 0;      // Button an GPIO 0
+static const uint8_t LED_PIN = 4;         // LED an GPIO 4
+static const uint8_t TEMP_SENSOR_PIN = 3; // DS18B20 an GPIO 3
+
