@@ -7,9 +7,23 @@ Simple PlatformIO project for Pico 2 (RP2350) with:
 - SG90 servo (sweep demo)
 - 1 normal LED
 - 1 addressable RGB LED (WS2812 or SK6812)
-- up to 3 buttons with short/long click detection
+- up to 3 buttons for input and demo control
 
 This repository is structured for beginners: each hardware block is in its own file.
+
+## Examples For Presentation
+
+The `examples/` folder contains three small step-by-step demos for live presentations:
+
+- `examples/01_display_farbe.cpp` - simplest example: only changes the display background color
+- `examples/02_if_for_demo.cpp` - middle example: shows `if` and `for` with a counter and bars
+- `examples/03_main_komplex_kopie.cpp` - most complex example: copy of the current `src/main.cpp`
+
+Suggested order for explaining the topic:
+
+1. start with the color-only example
+2. show the `if` / `for` example
+3. finish with the full application in `src/main.cpp`
 
 ## Hardware Summary
 
@@ -57,17 +71,13 @@ Defined in `src/pin.h`. Only GP0-9 and GP25-29 are exposed on the RP2350 board:
   - power and GND according to your module
   - common GND with Pico 2 is required
 
-## Buttons: Short And Long Click
+## Buttons And Input
 
 Implemented in `src/ButtonInput.cpp`:
 
 - Debounce: `25 ms`
-- Long click threshold: `700 ms`
-
-Event types:
-
-- `ShortPress`
-- `LongPress`
+- Current simple workshop behavior: button pressed = LED on, button released = LED off
+- The presentation examples in `examples/` are intentionally simpler and do not depend on the full app flow
 
 ## Display Views And Menu
 
@@ -139,9 +149,8 @@ If you are new to Arduino, start here:
 
 1. Change pin numbers in `src/pin.h`
 2. Change RGB brightness in `src/LedControl.cpp` (`RGB_BRIGHTNESS`)
-3. Change long-click time in `src/ButtonInput.h` (`LONG_PRESS_MS`)
-4. Change menu entries and layout in `src/AppScreen.cpp`
-5. Keep `src/main.cpp` mostly as orchestration only
+3. Change menu entries and layout in `src/AppScreen.cpp`
+4. Keep `src/main.cpp` mostly as orchestration only
 
 ## Troubleshooting
 
@@ -160,6 +169,7 @@ If you are new to Arduino, start here:
 
 - confirm button wiring to GND (with `INPUT_PULLUP`)
 - test with only `PIN_BUTTON_1` connected first
+- if you use the simplified `src/main.cpp`, remember the LED follows the button state directly, so the button must stay pressed for the LED to remain on
 
 ### Upload fails
 
