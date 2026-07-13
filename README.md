@@ -15,19 +15,27 @@ ein einziger, linearer Ablauf geschrieben (kein Klassen-Wirrwarr), Kommentare au
 
 ## Examples für Präsentationen
 
-Der Ordner `examples/` enthält kleine Schritt-für-Schritt-Demos für Live-Vorführungen:
+Der Ordner `examples/` enthält kleine Schritt-für-Schritt-Demos für Live-Vorführungen.
+Jedes Beispiel zeigt **ein** Bauteil für sich, ohne den Rest der Anwendung:
 
 - `examples/01_display_farbe.cpp` – einfachstes Beispiel: setzt nur die Hintergrundfarbe
 - `examples/02_if_for_demo.cpp` – mittleres Beispiel: `if` und `for` mit Zähler und Balken
 - `examples/03_main_komplex_kopie.cpp` – komplexeres Beispiel: Taster + LED + Temperatursensor
   (vereinfachte, ältere Version von `src/main.cpp` – **ohne** RFID und SPI-Bus-Umschaltung,
   damit der Ablauf für Einsteiger übersichtlich bleibt)
+- `examples/04_bitmap_image.cpp` – eigenes Bild (Bitmap) auf dem Display anzeigen
+- `examples/05_button_led.cpp` – nur Taster + LED, **ohne** Display
+- `examples/06_temperature_display.cpp` – nur DS18B20-Temperatursensor, Wert auf dem Display
+- `examples/07_ws2812_strip.cpp` – nur WS2812-LED-Kette (10 LEDs) mit FastLED, laufender Regenbogen
+- `examples/08_rfid_reader.cpp` – nur RFID-Leser (RC522), Karten-ID auf dem seriellen Monitor
 
 Empfohlene Reihenfolge für den Unterricht:
 
-1. Farb-Beispiel
-2. `if`/`for`-Beispiel
-3. volle Anwendung in `src/main.cpp`
+1. Farb-Beispiel (01)
+2. `if`/`for`-Beispiel (02)
+3. Einzelne Bauteile für sich: Taster+LED (05), Temperatursensor (06), WS2812 (07), RFID (08)
+4. Bitmap-Bilder (04)
+5. Alles zusammen: die volle Anwendung in `src/main.cpp`
 
 Um eines der Beispiele zu bauen, trage es statt `main.cpp` im `build_src_filter` in
 `platformio.ini` ein (oder tausche den Dateiinhalt aus).
