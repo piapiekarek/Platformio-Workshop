@@ -20,22 +20,23 @@ Jedes Beispiel zeigt **ein** Bauteil für sich, ohne den Rest der Anwendung:
 
 - `examples/01_display_farbe.cpp` – einfachstes Beispiel: setzt nur die Hintergrundfarbe
 - `examples/02_if_for_demo.cpp` – mittleres Beispiel: `if` und `for` mit Zähler und Balken
-- `examples/03_main_komplex_kopie.cpp` – 1:1-Kopie der vollen Anwendung aus `src/main.cpp`
+- `examples/03_button_led.cpp` – nur Taster + LED, **ohne** Display
+- `examples/04_temperature_display.cpp` – nur DS18B20-Temperatursensor, Wert auf dem Display
+- `examples/05_ws2812_strip.cpp` – nur WS2812-LED-Kette (16 LEDs) mit FastLED: Start-Lauflicht
+  (`while`-Schleife), danach laufender Regenbogen
+- `examples/06_rfid_reader.cpp` – nur RFID-Leser (RC522), Karten-ID auf dem Display
+- `examples/07_bitmap_image.cpp` – eigenes Bild (Bitmap) auf dem Display anzeigen
+- `examples/08_main_komplex_kopie.cpp` – 1:1-Kopie der vollen Anwendung aus `src/main.cpp`
   (Taster, LED, Temperatursensor, RFID, WS2812) als Referenz zum Nachschlagen; wird nicht
   automatisch synchron gehalten, falls `src/main.cpp` sich ändert
-- `examples/04_bitmap_image.cpp` – eigenes Bild (Bitmap) auf dem Display anzeigen
-- `examples/05_button_led.cpp` – nur Taster + LED, **ohne** Display
-- `examples/06_temperature_display.cpp` – nur DS18B20-Temperatursensor, Wert auf dem Display
-- `examples/07_ws2812_strip.cpp` – nur WS2812-LED-Kette (10 LEDs) mit FastLED, laufender Regenbogen
-- `examples/08_rfid_reader.cpp` – nur RFID-Leser (RC522), Karten-ID auf dem seriellen Monitor
 
-Empfohlene Reihenfolge für den Unterricht:
+Empfohlene Reihenfolge für den Unterricht (entspricht der Nummerierung):
 
 1. Farb-Beispiel (01)
 2. `if`/`for`-Beispiel (02)
-3. Einzelne Bauteile für sich: Taster+LED (05), Temperatursensor (06), WS2812 (07), RFID (08)
-4. Bitmap-Bilder (04)
-5. Alles zusammen: die volle Anwendung in `src/main.cpp`
+3. Einzelne Bauteile für sich: Taster+LED (03), Temperatursensor (04), WS2812 (05), RFID (06)
+4. Bitmap-Bilder (07)
+5. Alles zusammen: die volle Anwendung in `src/main.cpp` (bzw. 08 als Kopie davon)
 
 Um eines der Beispiele zu bauen, trage es statt `main.cpp` im `build_src_filter` in
 `platformio.ini` ein (oder tausche den Dateiinhalt aus).
@@ -146,9 +147,8 @@ bleiben einfach stehen.
 
 ## Ablauf in `src/main.cpp`
 
-- Taster: LED folgt direkt dem Tasterzustand (an solange gedrückt, aus beim Loslassen)
-- Taster (langer Druck, `BUTTON_LONG_PRESS_MS`): freie Stelle für eigenen Code
-  (`handleButton()`), z. B. für die WS2812-LEDs
+- Taster: LED und WS2812-Streifen folgen direkt dem Tasterzustand (an solange gedrückt,
+  aus beim Loslassen), siehe `handleButton()`
 - Temperatur wird alle 1,5 s neu gelesen (`TEMP_READ_INTERVAL_MS`)
 - RFID-Leser wird beim Start im Hintergrund initialisiert (kein Blockieren, falls kein
   Leser angeschlossen ist) und danach alle 100 ms nach einer Karte abgefragt
@@ -187,7 +187,7 @@ Wer neu mit Arduino/C++ ist, fängt hier an:
 1. Pin-Nummern in `src/pin.h` anpassen (nur GPIO 0–9, siehe Einschränkungen oben)
 2. `RFID_ENABLED` / `RGB_LED_ENABLED` in `src/pin.h` je nach eigenem Aufbau auf 0 oder 1 setzen
 3. Layout/Texte im Dashboard in `updateDisplay()` (`src/main.cpp`) anpassen
-4. Neue Aktionen für den langen Tasterklick in `handleButton()` ergänzen
+4. Eigene Reaktionen auf den Taster in `handleButton()` ergänzen (`src/main.cpp`)
 5. Kalibrierung des Temperatursensors über `TEMP_CALIBRATION_OFFSET` anpassen
 
 ## Fehlersuche

@@ -24,7 +24,7 @@ static const uint8_t LED_PIN = 4;         // LED on GPIO 4
 static const uint8_t TEMP_SENSOR_PIN = 3; // DS18B20 on GPIO 3
 
 static const uint8_t RGB_LED_PIN = 2;     // WS2812 strip (DATA) on GPIO 2
-static const uint8_t RGB_LED_COUNT = 8;   // number of LEDs in the strip - adjust to your hardware
+static const uint8_t RGB_LED_COUNT = 16;  // number of LEDs in the strip - adjust to your hardware
 
 static const uint8_t RFID_SCK_PIN = 6;    // RC522 SPI SCK on GPIO 6 (SPI0, GPIO2/6/18/22 are the only valid SCK pins)
 static const uint8_t RFID_MOSI_PIN = 7;   // RC522 SPI MOSI on GPIO 7 (SPI0, GPIO3/7/19/23 are the only valid MOSI pins)

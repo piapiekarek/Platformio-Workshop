@@ -3,7 +3,7 @@
 // =============================================================================
 //
 //  What does this code do?
-//  - A button toggles an LED on/off (short click).
+//  - A button controls an LED directly: on while held down, off when released.
 //  - A DS18B20 temperature sensor is read regularly.
 //  - An RFID reader (RC522) detects cards and shows their ID.
 //    (only if RFID_ENABLED is set to 1 in pin.h, see src/Rfid.cpp)
@@ -31,7 +31,6 @@
 const float TEMP_CALIBRATION_OFFSET = -2.3;
 
 const unsigned long TEMP_READ_INTERVAL_MS = 1500; // how often the temperature is read
-const unsigned long BUTTON_LONG_PRESS_MS = 1000;   // when a click counts as "long"
 
 // ────────────────────────────────────────────────────────────────────────────
 // GLOBAL VARIABLES (current program state)
@@ -42,9 +41,6 @@ Display display;
 bool ledIsOn = false;
 float temperature = 0.0;
 bool tempSensorConnected = false;
-
-bool lastButtonState = HIGH; // HIGH = not pressed (because of INPUT_PULLUP)
-unsigned long buttonPressTime = 0;
 
 unsigned long lastTempReadTime = 0;
 
@@ -171,31 +167,23 @@ void readTemperature() {
 }
 
 void handleButton() {
-    int currentButtonState = digitalRead(BUTTON_PIN);
-
     // LED follows the button directly: on while held down, off when released.
-    bool newLedState = (currentButtonState == LOW);
+    // The WS2812 strip follows along too, just to prove it's alive.
+    bool newLedState = (digitalRead(BUTTON_PIN) == LOW);
     if (newLedState != ledIsOn) {
         ledIsOn = newLedState;
         digitalWrite(LED_PIN, ledIsOn ? HIGH : LOW);
+
+        if (ledIsOn) {
+            rgbLedFill(255, 0, 0);
+            rgbLedShow();
+        } else {
+            rgbLedOff();
+        }
+
         Serial.print("LED is now: ");
         Serial.println(ledIsOn ? "ON" : "OFF");
     }
-
-    if (currentButtonState == LOW && lastButtonState == HIGH) {
-        buttonPressTime = millis(); // button was just pressed
-    }
-
-    if (currentButtonState == HIGH && lastButtonState == LOW) {
-        unsigned long pressDuration = millis() - buttonPressTime; // button was released
-
-        if (pressDuration >= BUTTON_LONG_PRESS_MS) {
-            // Long press: add your own action here, e.g.:
-            // rgbLedFill(255, 0, 0); rgbLedShow();
-        }
-    }
-
-    lastButtonState = currentButtonState;
 }
 
 // ────────────────────────────────────────────────────────────────────────────
