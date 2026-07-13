@@ -57,7 +57,9 @@ void Display::begin() {
     digitalWrite(TFT_RST, HIGH);
     delay(100);
 
+    #if defined(TFT_MISO) && (TFT_MISO >= 0)
     SPI.setRX(TFT_MISO);
+    #endif
     SPI.setCS(TFT_CS);
     SPI.setTX(TFT_MOSI);
     SPI.setSCK(TFT_SCLK);
@@ -143,7 +145,7 @@ void Display::print(const String& text, int x, int y,
     }
     _gfx->setTextColor(color);
     _gfx->setTextSize(size);
-    _gfx->setCursor(x, y + (size * 8));
+    _gfx->setCursor(x, y);
     _gfx->print(text);
 #else
     _tft.setTextColor(color, _tft.color565(0, 0, 0));
@@ -221,6 +223,16 @@ void Display::line(int x1, int y1, int x2, int y2, uint16_t color) {
     }
 #else
     _tft.drawLine(x1, y1, x2, y2, color);
+#endif
+}
+
+void Display::drawBitmap(int x, int y, const uint16_t* bitmap, int width, int height) {
+#ifdef USE_ARDUINO_GFX
+    if (_gfx) {
+        _gfx->draw16bitRGBBitmap(x, y, bitmap, width, height);
+    }
+#else
+    _tft.pushImage(x, y, width, height, bitmap);
 #endif
 }
 

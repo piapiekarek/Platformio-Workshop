@@ -51,6 +51,17 @@ static const uint16_t GRAY    = 0x7BEF;
 static const uint16_t ORANGE  = TFT_ORANGE;
 #endif
 
+// Darker variants for text on a light (white) background.
+// The "normal" colors above read well on a black background (see examples/),
+// but on white they are too pale/light for text.
+// Rule of thumb: text on WHITE -> use the DARK* variant.
+static const uint16_t DARKGREEN   = 0x0360; // instead of GREEN
+static const uint16_t DARKRED     = 0x90A2; // instead of RED
+static const uint16_t DARKCYAN    = 0x036F; // instead of CYAN
+static const uint16_t DARKMAGENTA = 0x780F; // instead of MAGENTA
+static const uint16_t DARKGRAY    = 0x5ACB; // instead of GRAY
+static const uint16_t DARKORANGE  = 0xAA80; // instead of ORANGE
+
 // ── Display class ──────────────────────────────────────────────────────────
 class Display {
 public:
@@ -102,6 +113,13 @@ public:
     // Draw a line between two points
     // Example: display.line(0, 0, 319, 171, RED);
     void line(int x1, int y1, int x2, int y2, uint16_t color = WHITE);
+
+    // Draw a 16-bit (RGB565) image, e.g. one generated from a photo or icon.
+    // Example: display.drawBitmap(10, 10, myImage, 16, 16);
+    //   bitmap        = array of pixel colors, row by row, top-left to bottom-right
+    //   width, height = size of the image in pixels (must match the array!)
+    // See examples/04_bitmap_image.cpp for how to create your own image array.
+    void drawBitmap(int x, int y, const uint16_t* bitmap, int width, int height);
 
     // Draw a progress bar for a sensor value (e.g. temperature, brightness)
     // Example: display.bar(10, 80, 200, 20, value, 0, 100, CYAN);

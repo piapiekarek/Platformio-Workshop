@@ -7,9 +7,9 @@ void setup() {
     display.begin();
     display.setRotation(3);
 
-    // Einfachstes Beispiel: nur die Hintergrundfarbe setzen.
+    // Simplest example: just set the background color.
     display.clear(BLUE);
-    display.print("Hello, World!", 10, 10, WHITE, 2);
+    display.print("Hello, World!", 10, 26, WHITE, 2);
 
 }
 

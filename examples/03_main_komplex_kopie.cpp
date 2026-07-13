@@ -58,7 +58,7 @@ void setupDisplay() {
     display.clear(BLACK);
     
     // Startup screen
-    display.print("Starting...", 50, 80, WHITE, 2);
+    display.print("Starting...", 50, 96, WHITE, 2);
 }
 
 void setupButton() {
@@ -86,48 +86,48 @@ void updateDisplay() {
     display.rectFilled(0, 0, 320, 172, WHITE);
     
     // TITLE
-    display.print("Control Panel", 10, 6, BLACK, 2);
+    display.print("Control Panel", 10, 4, BLACK, 2);
     display.line(0, 24, 319, 24, GRAY);
-    
+
     // SENSOR STATUS
     display.rect(6, 30, 308, 26, GRAY);
-    display.print("Sensor: ", 12, 34, BLACK, 1);
+    display.print("Sensor: ", 12, 39, BLACK, 1);
     if (tempSensorConnected) {
-        display.print("CONNECTED", 72, 34, GREEN, 1);
+        display.print("CONNECTED", 72, 39, GREEN, 1);
     } else {
-        display.print("UNCONNECTED", 72, 34, RED, 1);
+        display.print("UNCONNECTED", 72, 39, RED, 1);
     }
-    
+
     // BUTTON STATUS
     display.rect(6, 60, 150, 26, GRAY);
-    display.print("Button: ", 12, 64, CYAN, 1);
+    display.print("Button: ", 12, 69, CYAN, 1);
     if (digitalRead(BUTTON_PIN) == LOW) {
-        display.print("PRESSED", 84, 64, MAGENTA, 1);
+        display.print("PRESSED", 84, 69, MAGENTA, 1);
     } else {
-        display.print("released", 84, 64, BLACK, 1);
+        display.print("released", 84, 69, BLACK, 1);
     }
-    
+
     // LED STATUS
     display.rect(162, 60, 152, 26, GRAY);
-    display.print("LED: ", 168, 64, BLACK, 1);
+    display.print("LED: ", 168, 69, BLACK, 1);
     if (ledIsOn) {
-        display.print("ON", 204, 64, GREEN, 1);
+        display.print("ON", 204, 69, GREEN, 1);
     } else {
-        display.print("OFF", 204, 64, GRAY, 1);
+        display.print("OFF", 204, 69, GRAY, 1);
     }
-    
+
     // Note: This function is called after oneWire is defined globally above
-    
+
     // TEMPERATURE
     display.rect(6, 90, 308, 74, GRAY);
-    display.print("Temperature:", 12, 96, CYAN, 1);
-    
+    display.print("Temperature:", 12, 104, CYAN, 1);
+
     // Large temperature display
-    display.number(temperature, 16, 114, MAGENTA, 3, 1);
-    display.print("C", 88, 114, MAGENTA, 3);
-    
+    display.number(temperature, 16, 138, MAGENTA, 3, 1);
+    display.print("C", 88, 138, MAGENTA, 3);
+
     // Info text
-    display.print("Connect sensor or press button!", 8, 155, ORANGE, 1);
+    display.print("Connect sensor or press button!", 8, 163, ORANGE, 1);
 }
 
 // ────────────────────────────────────────────────────────────────────────────

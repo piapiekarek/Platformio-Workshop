@@ -1,178 +1,222 @@
 # RP2350 Control Panel
 
-Simple PlatformIO project for Pico 2 (RP2350) with:
+PlatformIO-Projekt für den Waveshare **RP2350-LCD-1.47-A** (Raspberry Pi Pico 2 mit fest
+verbautem 1.47"-Display) mit:
 
-- Waveshare 1.47" display (ST7789, 320x172)
-- DS18B20 temperature sensor
-- SG90 servo (sweep demo)
-- 1 normal LED
-- 1 addressable RGB LED (WS2812 or SK6812)
-- up to 3 buttons for input and demo control
+- Waveshare 1.47" Display (ST7789V2, 320×172, fest auf dem Board verdrahtet)
+- Taster
+- LED
+- DS18B20-Temperatursensor
+- RFID-Leser RC522 (SPI, extern angeschlossen, optional)
+- WS2812-LED-Streifen (FastLED, extern angeschlossen, optional)
 
-This repository is structured for beginners: each hardware block is in its own file.
+Dieses Repository ist für Workshops/Unterricht gedacht: `src/main.cpp` ist bewusst als
+ein einziger, linearer Ablauf geschrieben (kein Klassen-Wirrwarr), Kommentare auf Deutsch.
 
-## Examples For Presentation
+## Examples für Präsentationen
 
-The `examples/` folder contains three small step-by-step demos for live presentations:
+Der Ordner `examples/` enthält kleine Schritt-für-Schritt-Demos für Live-Vorführungen:
 
-- `examples/01_display_farbe.cpp` - simplest example: only changes the display background color
-- `examples/02_if_for_demo.cpp` - middle example: shows `if` and `for` with a counter and bars
-- `examples/03_main_komplex_kopie.cpp` - most complex example: copy of the current `src/main.cpp`
+- `examples/01_display_farbe.cpp` – einfachstes Beispiel: setzt nur die Hintergrundfarbe
+- `examples/02_if_for_demo.cpp` – mittleres Beispiel: `if` und `for` mit Zähler und Balken
+- `examples/03_main_komplex_kopie.cpp` – komplexeres Beispiel: Taster + LED + Temperatursensor
+  (vereinfachte, ältere Version von `src/main.cpp` – **ohne** RFID und SPI-Bus-Umschaltung,
+  damit der Ablauf für Einsteiger übersichtlich bleibt)
 
-Suggested order for explaining the topic:
+Empfohlene Reihenfolge für den Unterricht:
 
-1. start with the color-only example
-2. show the `if` / `for` example
-3. finish with the full application in `src/main.cpp`
+1. Farb-Beispiel
+2. `if`/`for`-Beispiel
+3. volle Anwendung in `src/main.cpp`
 
-## Hardware Summary
+Um eines der Beispiele zu bauen, trage es statt `main.cpp` im `build_src_filter` in
+`platformio.ini` ein (oder tausche den Dateiinhalt aus).
 
-- Board: Raspberry Pi Pico 2 (`rpipico2`)
-- Framework: Arduino (Earle Philhower core)
-- Environment in PlatformIO: `rp2350`
+## Hardware
 
-## Build And Upload
+- Board: Waveshare RP2350-LCD-1.47-A (Raspberry Pi Pico 2 / RP2350)
+- Framework: Arduino (Earle Philhower Core)
+- PlatformIO-Environment: `rp2350`
 
-From the project root:
+## Bauen und Flashen
+
+Im Projektverzeichnis:
 
 ```bash
 ~/.platformio/penv/bin/platformio run -e rp2350
 ~/.platformio/penv/bin/platformio run -e rp2350 -t upload --upload-port /dev/ttyACM0
 ```
 
-If `platformio` is already in your PATH, the `~/.platformio/penv/bin/` prefix is optional.
+Wenn `platformio` bereits im PATH ist, kann der Präfix `~/.platformio/penv/bin/` entfallen.
 
-## Pin Mapping
+## Pin-Belegung
 
-Defined in `src/pin.h`. Only GP0-9 and GP25-29 are exposed on the RP2350 board:
+Das Board hat nur **GPIO 0–9** als freien Header für eigene Bauteile. GPIO 10–22 sind
+intern fest verdrahtet (Display, SD-Karte, RGB-LED) und dürfen für eigene Bauteile nicht
+verwendet werden.
 
-- `PIN_BUTTON_1 = 0` (GP0)
-- `PIN_BUTTON_2 = 1` (GP1)
-- `PIN_BUTTON_3 = 2` (GP2)
-- `PIN_DS18B20 = 3` (GP3)
-- `PIN_LED_SIMPLE = 4` (GP4)
-- `PIN_RGB_LED = 5` (GP5)
-- `PIN_SERVO = 6` (GP6)
+### Fest verdrahtet (Board-intern, siehe `platformio.ini` build_flags)
 
-### Wiring Notes
+| Funktion   | GPIO |
+|------------|------|
+| SD SCLK    | 10   |
+| SD MOSI    | 11   |
+| SD MISO    | 12   |
+| SD D1      | 13   |
+| SD D2      | 14   |
+| SD CS      | 15   |
+| LCD DC     | 16   |
+| LCD CS     | 17   |
+| LCD CLK    | 18   |
+| LCD DIN    | 19   |
+| LCD RST    | 20   |
+| LCD BL     | 21   |
+| RGB IO     | 22   |
 
-- Buttons use `INPUT_PULLUP`:
-  - one side to GPIO
-  - other side to GND
-- DS18B20:
-  - DATA to `PIN_DS18B20`
-  - VCC to 3V3
-  - GND to GND
-  - add pull-up resistor between DATA and 3V3 if your module does not include one
-- Normal LED:
-  - GPIO -> resistor (e.g. 220 ohm) -> LED -> GND
-- WS2812/SK6812:
-  - DATA to `PIN_RGB_LED`
-  - power and GND according to your module
-  - common GND with Pico 2 is required
+### Frei verdrahtet (eigene Bauteile, siehe `src/pin.h`)
 
-## Buttons And Input
+| Bauteil            | Konstante        | GPIO |
+|--------------------|-------------------|------|
+| Taster             | `BUTTON_PIN`      | 1    |
+| LED                | `LED_PIN`         | 4    |
+| DS18B20 (Data)     | `TEMP_SENSOR_PIN` | 3    |
+| RC522 MISO         | `RFID_MISO_PIN`   | 0    |
+| RC522 SS/SDA       | `RFID_SS_PIN`     | 5    |
+| RC522 SCK          | `RFID_SCK_PIN`    | 6    |
+| RC522 MOSI         | `RFID_MOSI_PIN`   | 7    |
+| RC522 RST          | `RFID_RST_PIN`    | 8    |
+| WS2812 DATA        | `RGB_LED_PIN`     | 2    |
 
-Implemented in `src/ButtonInput.cpp`:
+**Wichtig:** SCK und MOSI des RC522 lassen sich nicht auf beliebige GPIOs legen. Der
+RP2350 hat für den SPI0-Bus feste Pin-Gruppen (Hardware-Multiplexer, kein freies
+Remapping):
 
-- Debounce: `25 ms`
-- Current simple workshop behavior: button pressed = LED on, button released = LED off
-- The presentation examples in `examples/` are intentionally simpler and do not depend on the full app flow
+- SCK nur auf GPIO 2, 6, 18 oder 22
+- MOSI (TX) nur auf GPIO 3, 7, 19 oder 23
+- MISO (RX) nur auf GPIO 0, 4, 16 oder 20
+- CS nur auf GPIO 1, 5, 17 oder 21
 
-## Display Views And Menu
+Wird ein ungültiger Pin gesetzt, hängt sich der Chip beim Start auf (SDK-`panic()`).
+Wer die RC522-Pins ändern will, muss aus diesen Listen wählen.
 
-Implemented in `src/AppScreen.cpp` and controlled from `src/main.cpp`.
+### Verkabelungshinweise
 
-### Dashboard
+- Taster: `INPUT_PULLUP`, eine Seite an GPIO, andere Seite an GND
+- DS18B20: DATA an `TEMP_SENSOR_PIN`, VCC an 3V3, GND an GND (Pull-up-Widerstand
+  zwischen DATA und 3V3 ergänzen, falls das Modul keinen eingebaut hat)
+- LED: GPIO → Vorwiderstand (z. B. 220 Ω) → LED → GND
+- RC522: VCC an 3V3 (**nicht 5V!**), restliche Pins siehe Tabelle oben
+- WS2812-Streifen: DATA an `RGB_LED_PIN`, VCC/GND passend zum Streifen (bei mehr als
+  ein paar LEDs eigene Stromversorgung verwenden, nicht über den Pico), gemeinsame
+  Masse (GND) mit dem Pico ist Pflicht
 
-Shows:
+## SPI-Bus wird geteilt (Display + RFID)
 
-- sensor status (`CONNECTED` / `UNCONNECTED`)
-- button 1 state (`DOWN` / `UP`)
-- normal LED state (`ON` / `OFF`)
-- temperature value in large text
+Display und RC522 hängen an unterschiedlichen GPIOs, nutzen aber denselben SPI0-Baustein
+im Chip. `src/SpiBus.cpp` schaltet deshalb vor jedem Zugriff per `SPI.setTX/setSCK/setRX/setCS`
+auf die passenden Pins um (`selectDisplayBus()` / `selectRfidBus()`) und deaktiviert das
+jeweils andere Gerät über seinen CS-Pin. Diese Logik nicht "vereinfachen" oder entfernen –
+sonst blockieren sich Display und RFID-Leser gegenseitig.
 
-The layout uses clean boxes with good spacing to avoid text overlapping.
+`TFT_MISO=255` in `platformio.ini` ist kein echter Pin, sondern der `NOPIN`-Wert: Das
+Display hat keine MISO-Leitung, und alle vier für SPI0 gültigen MISO-Pins (0/4/16/20)
+sind bereits von LED, RC522, DC und RST belegt.
 
-### Menu
+## Optionale Bauteile per Präprozessorflag abschalten
 
-Open menu from dashboard with **short click on Button 1**.
-
-- **short click**: move selection
-- **long click**: execute selected action
-
-Menu actions:
-
-- Toggle LED
-- Back to dashboard
-
-## Project Structure
-
-### Display abstraction
-
-- `src/Display.h`
-- `src/Display.cpp`
-
-### Input / output / sensors
-
-- `src/ButtonInput.h`
-- `src/ButtonInput.cpp`
-- `src/LedControl.h`
-- `src/LedControl.cpp`
-- `src/TemperatureSensor.h`
-- `src/TemperatureSensor.cpp`
-- `src/ServoSweep.h`
-- `src/ServoSweep.cpp`
-
-### UI and app flow
-
-- `src/AppScreen.h`
-- `src/AppScreen.cpp`
-- `src/main.cpp`
-
-## RGB Type Configuration (WS2812 vs SK6812)
-
-In `src/LedControl.cpp`:
+Nicht jede Gruppe hat RFID oder einen WS2812-Streifen verbaut. Beides lässt sich in
+`src/pin.h` einzeln deaktivieren:
 
 ```cpp
-#ifndef RGB_LED_SK6812
-#define RGB_LED_SK6812 0
-#endif
+#define RFID_ENABLED 1     // auf 0 setzen, falls kein RC522 angeschlossen ist
+#define RGB_LED_ENABLED 1  // auf 0 setzen, falls kein WS2812-Streifen angeschlossen ist
 ```
 
-- `0` -> WS2812 (GRB)
-- `1` -> SK6812 (GRBW)
+Bei `0` werden die zugehörigen Funktionen (`rfidSetup()`, `rgbLedFill()`, …) zu
+No-ops übersetzt – `src/main.cpp` muss dafür **nicht** angepasst werden, die Aufrufe
+bleiben einfach stehen.
 
-## Beginner Editing Guide
+## Ablauf in `src/main.cpp`
 
-If you are new to Arduino, start here:
+- Taster (kurzer Klick): LED ein/aus
+- Taster (langer Klick): freie Stelle für eigenen Code (`handleButton()`), z. B. für die
+  WS2812-LEDs
+- Temperatur wird alle 1,5 s neu gelesen (`TEMP_READ_INTERVAL_MS`)
+- RFID-Leser wird beim Start im Hintergrund initialisiert (kein Blockieren, falls kein
+  Leser angeschlossen ist) und danach alle 100 ms nach einer Karte abgefragt
+- Alle Werte werden im Display-Dashboard angezeigt: Sensor-Status, Taster-Status,
+  LED-Status, Temperatur, RFID-Status (grau=aus, rot=Leser fehlt, grün=bereit, blau=Karte
+  erkannt, Karten-ID steht rechts neben dem Punkt)
 
-1. Change pin numbers in `src/pin.h`
-2. Change RGB brightness in `src/LedControl.cpp` (`RGB_BRIGHTNESS`)
-3. Change menu entries and layout in `src/AppScreen.cpp`
-4. Keep `src/main.cpp` mostly as orchestration only
+## Projektstruktur
 
-## Troubleshooting
+- `src/main.cpp` – Programmablauf (setup/loop, Taster/LED/Temperatur, Anzeige)
+- `src/pin.h` – frei verdrahtete Pins und Feature-Flags (`RFID_ENABLED`, `RGB_LED_ENABLED`)
+- `src/Display.h` / `src/Display.cpp` – einfache Display-Klasse (Text, Formen, Balken, Farben)
+- `src/SpiBus.h` / `src/SpiBus.cpp` – SPI-Bus zwischen Display und RFID umschalten
+- `src/Rfid.h` / `src/Rfid.cpp` – kompletter RFID-Code (RC522), per `RFID_ENABLED` abschaltbar
+- `src/RgbLed.h` / `src/RgbLed.cpp` – WS2812-Ansteuerung (FastLED), per `RGB_LED_ENABLED`
+  abschaltbar
+- `platformio.ini` – Board-Konfiguration und fest verdrahtete Display-Pins
 
-### Display stays black
+## Displayfarben und Kontrast
 
-- check all display wires
-- verify display power and backlight pins
-- confirm you are building/uploading `-e rp2350`
+`src/Display.h` bietet zwei Farbsätze:
 
-### Sensor always unconnected
+- helle Farben (`GREEN`, `RED`, `CYAN`, `MAGENTA`, `GRAY`, `ORANGE`, …) – gut lesbar auf
+  **schwarzem** Untergrund (siehe `examples/`)
+- dunkle Varianten (`DARKGREEN`, `DARKRED`, `DARKCYAN`, `DARKMAGENTA`, `DARKGRAY`,
+  `DARKORANGE`) – gut lesbar auf **weißem** Untergrund, wie im Dashboard in `main.cpp`
 
-- verify DS18B20 wiring and pull-up resistor
-- check GND continuity
+Faustregel: Text auf weißem Hintergrund → immer eine `DARK*`-Farbe verwenden.
 
-### Button clicks do nothing
+## Einsteiger-Leitfaden
 
-- confirm button wiring to GND (with `INPUT_PULLUP`)
-- test with only `PIN_BUTTON_1` connected first
-- if you use the simplified `src/main.cpp`, remember the LED follows the button state directly, so the button must stay pressed for the LED to remain on
+Wer neu mit Arduino/C++ ist, fängt hier an:
 
-### Upload fails
+1. Pin-Nummern in `src/pin.h` anpassen (nur GPIO 0–9, siehe Einschränkungen oben)
+2. `RFID_ENABLED` / `RGB_LED_ENABLED` in `src/pin.h` je nach eigenem Aufbau auf 0 oder 1 setzen
+3. Layout/Texte im Dashboard in `updateDisplay()` (`src/main.cpp`) anpassen
+4. Neue Aktionen für den langen Tasterklick in `handleButton()` ergänzen
+5. Kalibrierung des Temperatursensors über `TEMP_CALIBRATION_OFFSET` anpassen
 
-- check correct upload port (e.g. `/dev/ttyACM0`)
-- reconnect USB cable
-- retry upload command
+## Fehlersuche
+
+### Display bleibt schwarz (Backlight an)
+
+- Prüfen, ob `-e rp2350` gebaut/geflasht wurde
+- Prüfen, ob `TFT_MISO` in `platformio.ini` auf `255` (NOPIN) steht, nicht auf einen
+  echten Pin – ein ungültiger SPI-Pin lässt den Chip beim Start abstürzen
+
+### RFID-Leser wird nicht erkannt
+
+- Seriellen Monitor öffnen (115200 Baud): Meldung "RFID: reader not detected yet" =
+  Leser antwortet nicht
+- Verkabelung gegen die Tabelle oben prüfen, besonders SCK/MOSI (siehe Hinweis zu
+  festen Pin-Gruppen)
+- VCC des RC522 an 3V3, nicht 5V
+
+### Sensor immer "UNCONNECTED"
+
+- DS18B20-Verkabelung und Pull-up-Widerstand prüfen
+- GND-Verbindung prüfen
+
+### Taster reagiert nicht
+
+- Verkabelung gegen GND prüfen (`INPUT_PULLUP`)
+- `BUTTON_PIN` in `src/pin.h` mit tatsächlicher Verdrahtung abgleichen
+
+### WS2812-Streifen bleibt aus
+
+- `RGB_LED_ENABLED` in `src/pin.h` muss auf `1` stehen
+- `RGB_LED_PIN` mit der tatsächlichen DATA-Verkabelung abgleichen
+- `RGB_LED_COUNT` an die tatsächliche Anzahl LEDs im Streifen anpassen
+- nach `rgbLedSetColor()`/`rgbLedFill()` muss `rgbLedShow()` aufgerufen werden, sonst
+  bleibt die Änderung unsichtbar
+- gemeinsame Masse (GND) zwischen Streifen und Pico prüfen
+
+### Upload schlägt fehl
+
+- richtigen Upload-Port prüfen (z. B. `/dev/ttyACM0`)
+- USB-Kabel neu verbinden
+- Upload-Befehl erneut ausführen
