@@ -20,9 +20,9 @@ Jedes Beispiel zeigt **ein** Bauteil für sich, ohne den Rest der Anwendung:
 
 - `examples/01_display_farbe.cpp` – einfachstes Beispiel: setzt nur die Hintergrundfarbe
 - `examples/02_if_for_demo.cpp` – mittleres Beispiel: `if` und `for` mit Zähler und Balken
-- `examples/03_main_komplex_kopie.cpp` – komplexeres Beispiel: Taster + LED + Temperatursensor
-  (vereinfachte, ältere Version von `src/main.cpp` – **ohne** RFID und SPI-Bus-Umschaltung,
-  damit der Ablauf für Einsteiger übersichtlich bleibt)
+- `examples/03_main_komplex_kopie.cpp` – 1:1-Kopie der vollen Anwendung aus `src/main.cpp`
+  (Taster, LED, Temperatursensor, RFID, WS2812) als Referenz zum Nachschlagen; wird nicht
+  automatisch synchron gehalten, falls `src/main.cpp` sich ändert
 - `examples/04_bitmap_image.cpp` – eigenes Bild (Bitmap) auf dem Display anzeigen
 - `examples/05_button_led.cpp` – nur Taster + LED, **ohne** Display
 - `examples/06_temperature_display.cpp` – nur DS18B20-Temperatursensor, Wert auf dem Display
@@ -146,15 +146,17 @@ bleiben einfach stehen.
 
 ## Ablauf in `src/main.cpp`
 
-- Taster (kurzer Klick): LED ein/aus
-- Taster (langer Klick): freie Stelle für eigenen Code (`handleButton()`), z. B. für die
-  WS2812-LEDs
+- Taster: LED folgt direkt dem Tasterzustand (an solange gedrückt, aus beim Loslassen)
+- Taster (langer Druck, `BUTTON_LONG_PRESS_MS`): freie Stelle für eigenen Code
+  (`handleButton()`), z. B. für die WS2812-LEDs
 - Temperatur wird alle 1,5 s neu gelesen (`TEMP_READ_INTERVAL_MS`)
 - RFID-Leser wird beim Start im Hintergrund initialisiert (kein Blockieren, falls kein
   Leser angeschlossen ist) und danach alle 100 ms nach einer Karte abgefragt
 - Alle Werte werden im Display-Dashboard angezeigt: Sensor-Status, Taster-Status,
   LED-Status, Temperatur, RFID-Status (grau=aus, rot=Leser fehlt, grün=bereit, blau=Karte
   erkannt, Karten-ID steht rechts neben dem Punkt)
+- Eine erkannte Karten-ID wird nach `CARD_ID_DISPLAY_MS` (`src/Rfid.cpp`, Standard 15s)
+  automatisch wieder ausgeblendet
 
 ## Projektstruktur
 

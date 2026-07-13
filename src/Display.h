@@ -1,11 +1,6 @@
 #pragma once
 #include <Arduino.h>
-
-#ifdef USE_ARDUINO_GFX
 #include <Arduino_GFX_Library.h>
-#else
-#include <TFT_eSPI.h>
-#endif
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  Display – simple class for drawing on the Waveshare 1.47" LCD
@@ -27,7 +22,6 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 // ── Colour constants ───────────────────────────────────────────────────────
-#ifdef USE_ARDUINO_GFX
 static const uint16_t BLACK   = 0x0000;
 static const uint16_t WHITE   = 0xFFFF;
 static const uint16_t RED     = 0xF800;
@@ -38,18 +32,6 @@ static const uint16_t CYAN    = 0x07FF;
 static const uint16_t MAGENTA = 0xF81F;
 static const uint16_t GRAY    = 0x7BEF;
 static const uint16_t ORANGE  = 0xFD20;
-#else
-static const uint16_t BLACK   = TFT_BLACK;
-static const uint16_t WHITE   = TFT_WHITE;
-static const uint16_t RED     = TFT_RED;
-static const uint16_t GREEN   = TFT_GREEN;
-static const uint16_t BLUE    = TFT_BLUE;
-static const uint16_t YELLOW  = TFT_YELLOW;
-static const uint16_t CYAN    = TFT_CYAN;
-static const uint16_t MAGENTA = TFT_MAGENTA;
-static const uint16_t GRAY    = 0x7BEF;
-static const uint16_t ORANGE  = TFT_ORANGE;
-#endif
 
 // Darker variants for text on a light (white) background.
 // The "normal" colors above read well on a black background (see examples/),
@@ -133,18 +115,10 @@ public:
              float value, float minValue, float maxValue,
              uint16_t color = GREEN);
 
-    // Direct access to the underlying TFT object (advanced use)
-#ifdef USE_ARDUINO_GFX
+    // Direct access to the underlying Arduino_GFX object (advanced use)
     Arduino_GFX& tft() { return *_gfx; }
-#else
-    TFT_eSPI& tft() { return _tft; }
-#endif
 
 private:
-#ifdef USE_ARDUINO_GFX
     Arduino_DataBus* _bus = nullptr;
     Arduino_GFX* _gfx = nullptr;
-#else
-    TFT_eSPI _tft;
-#endif
 };

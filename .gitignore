@@ -6,3 +6,6 @@
 archiv/
 arduino_code/
 diag_gfx.cpp
+venv_build/
+.venv/
+venv/

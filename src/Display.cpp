@@ -1,6 +1,5 @@
 #include "Display.h"
 
-#ifdef USE_ARDUINO_GFX
 // Init sequence mirrored from Waveshare RP2350-LCD-1.47 wiki demo.
 static const uint8_t kWaveshareSt7789Init[] = {
     BEGIN_WRITE,
@@ -37,10 +36,8 @@ static const uint8_t kWaveshareSt7789Init[] = {
     WRITE_COMMAND_8, 0x29,
     END_WRITE
 };
-#endif
 
 void Display::begin() {
-#ifdef USE_ARDUINO_GFX
     pinMode(TFT_DC, OUTPUT);
     pinMode(TFT_CS, OUTPUT);
     pinMode(TFT_RST, OUTPUT);
@@ -85,61 +82,22 @@ void Display::begin() {
         return;
     }
     _gfx->fillScreen(BLACK);
-#else
-#if defined(TFT_RST) && (TFT_RST >= 0)
-    // Force a clean LCD controller reset before init sequence.
-    pinMode(TFT_RST, OUTPUT);
-    digitalWrite(TFT_RST, HIGH);
-    delay(5);
-    digitalWrite(TFT_RST, LOW);
-    delay(20);
-    digitalWrite(TFT_RST, HIGH);
-    delay(150);
-#endif
-
-    pinMode(TFT_BL, OUTPUT);
-    digitalWrite(TFT_BL, TFT_BACKLIGHT_ON);
-
-    _tft.init();
-    _tft.setRotation(3);    // 0 = Portrait  172 × 320 px
-                            // 1 = Landscape 320 × 172 px
-                            // 2 = Portrait gedreht  172 × 320 px
-                            // 3 = Landscape gedreht 320 × 172 px
-
-    // Startup self-test: if these colors are visible, SPI + init works.
-    _tft.fillScreen(TFT_RED);
-    delay(150);
-    _tft.fillScreen(TFT_GREEN);
-    delay(150);
-    _tft.fillScreen(TFT_BLUE);
-    delay(150);
-    _tft.fillScreen(TFT_BLACK);
-#endif
 }
 
 void Display::setRotation(uint8_t rotation) {
-#ifdef USE_ARDUINO_GFX
     if (_gfx) {
         _gfx->setRotation(rotation & 0x03);
     }
-#else
-    _tft.setRotation(rotation & 0x03);
-#endif
 }
 
 void Display::clear(uint16_t color) {
-#ifdef USE_ARDUINO_GFX
     if (_gfx) {
         _gfx->fillScreen(color);
     }
-#else
-    _tft.fillScreen(color);
-#endif
 }
 
 void Display::print(const String& text, int x, int y,
                     uint16_t color, uint8_t size) {
-#ifdef USE_ARDUINO_GFX
     if (!_gfx) {
         return;
     }
@@ -147,12 +105,6 @@ void Display::print(const String& text, int x, int y,
     _gfx->setTextSize(size);
     _gfx->setCursor(x, y);
     _gfx->print(text);
-#else
-    _tft.setTextColor(color, _tft.color565(0, 0, 0));
-    _tft.setTextSize(size);
-    _tft.setTextFont(0);    // built-in GLCD font, always available
-    _tft.drawString(text, x, y);
-#endif
 }
 
 void Display::number(float value, int x, int y,
@@ -162,23 +114,15 @@ void Display::number(float value, int x, int y,
 }
 
 void Display::rect(int x, int y, int width, int height, uint16_t color) {
-#ifdef USE_ARDUINO_GFX
     if (_gfx) {
         _gfx->drawRect(x, y, width, height, color);
     }
-#else
-    _tft.drawRect(x, y, width, height, color);
-#endif
 }
 
 void Display::rectFilled(int x, int y, int width, int height, uint16_t color) {
-#ifdef USE_ARDUINO_GFX
     if (_gfx) {
         _gfx->fillRect(x, y, width, height, color);
     }
-#else
-    _tft.fillRect(x, y, width, height, color);
-#endif
 }
 
 void Display::rectRounded(int x, int y, int width, int height, int radius, uint16_t color) {
@@ -197,49 +141,32 @@ void Display::rectRounded(int x, int y, int width, int height, int radius, uint1
 }
 
 void Display::circle(int cx, int cy, int radius, uint16_t color) {
-#ifdef USE_ARDUINO_GFX
     if (_gfx) {
         _gfx->drawCircle(cx, cy, radius, color);
     }
-#else
-    _tft.drawCircle(cx, cy, radius, color);
-#endif
 }
 
 void Display::circleFilled(int cx, int cy, int radius, uint16_t color) {
-#ifdef USE_ARDUINO_GFX
     if (_gfx) {
         _gfx->fillCircle(cx, cy, radius, color);
     }
-#else
-    _tft.fillCircle(cx, cy, radius, color);
-#endif
 }
 
 void Display::line(int x1, int y1, int x2, int y2, uint16_t color) {
-#ifdef USE_ARDUINO_GFX
     if (_gfx) {
         _gfx->drawLine(x1, y1, x2, y2, color);
     }
-#else
-    _tft.drawLine(x1, y1, x2, y2, color);
-#endif
 }
 
 void Display::drawBitmap(int x, int y, const uint16_t* bitmap, int width, int height) {
-#ifdef USE_ARDUINO_GFX
     if (_gfx) {
         _gfx->draw16bitRGBBitmap(x, y, bitmap, width, height);
     }
-#else
-    _tft.pushImage(x, y, width, height, bitmap);
-#endif
 }
 
 void Display::bar(int x, int y, int width, int height,
                   float value, float minValue, float maxValue,
                   uint16_t color) {
-#ifdef USE_ARDUINO_GFX
     if (!_gfx) {
         return;
     }
@@ -255,22 +182,4 @@ void Display::bar(int x, int y, int width, int height,
         _gfx->fillRect(x + 1 + filled, y + 1,
                        width - 2 - filled, height - 2, BLACK);
     }
-#else
-    // Draw the empty bar outline
-    _tft.drawRect(x, y, width, height, GRAY);
-
-    // Map value to bar width
-    float ratio = constrain((value - minValue) / (maxValue - minValue), 0.0f, 1.0f);
-    int filled = (int)(ratio * (width - 2));
-
-    // Draw the filled portion
-    if (filled > 0) {
-        _tft.fillRect(x + 1, y + 1, filled, height - 2, color);
-    }
-    // Clear the empty portion (needed when the value decreases)
-    if (filled < width - 2) {
-        _tft.fillRect(x + 1 + filled, y + 1,
-                      width - 2 - filled, height - 2, BLACK);
-    }
-#endif
 }
